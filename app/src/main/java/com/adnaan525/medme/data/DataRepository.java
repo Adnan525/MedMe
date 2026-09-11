@@ -11,6 +11,7 @@ import com.adnaan525.medme.model.Medication;
 import com.adnaan525.medme.model.Patient;
 import com.adnaan525.medme.util.DateTimeUtils;
 import com.adnaan525.medme.util.IdGenerator;
+import com.adnaan525.medme.util.ScheduleUtils;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -198,7 +199,7 @@ public final class DataRepository {
         boolean triggersLowStock = false;
         if (inventory != null) {
             inventory.setQuantityRemaining(Math.max(0, inventory.getQuantityRemaining() - 1));
-            if (inventory.isLowStock() && !inventory.isLowStockNotified()) {
+            if (ScheduleUtils.isLowStock(lookup.medication) && !inventory.isLowStockNotified()) {
                 inventory.setLowStockNotified(true);
                 triggersLowStock = true;
             }
@@ -235,7 +236,7 @@ public final class DataRepository {
         }
         Inventory inventory = lookup.medication.getInventory();
         inventory.setQuantityRemaining(inventory.getQuantityRemaining() + quantityAdded);
-        if (!inventory.isLowStock()) {
+        if (!ScheduleUtils.isLowStock(lookup.medication)) {
             inventory.setLowStockNotified(false);
         }
         persist();

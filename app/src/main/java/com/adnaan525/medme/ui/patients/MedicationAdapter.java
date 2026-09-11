@@ -13,6 +13,7 @@ import com.adnaan525.medme.model.DurationType;
 import com.adnaan525.medme.model.Inventory;
 import com.adnaan525.medme.model.Medication;
 import com.adnaan525.medme.util.DateTimeUtils;
+import com.adnaan525.medme.util.ScheduleUtils;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -55,11 +56,14 @@ public class MedicationAdapter extends RecyclerView.Adapter<MedicationAdapter.Vi
 
         String scheduleText;
         if (med.getDurationType() == DurationType.FIXED_DAYS) {
-            LocalDate start = DateTimeUtils.parseDate(med.getStartDate());
-            long dayNumber = ChronoUnit.DAYS.between(start, LocalDate.now()) + 1;
-            if (dayNumber < 1 || dayNumber > med.getTotalDays()) {
+            if (ScheduleUtils.isCourseFinished(med)) {
                 scheduleText = res.getString(R.string.schedule_fixed_days_ended_summary, doseCount);
+            } else if (ScheduleUtils.isCourseUpcoming(med)) {
+                String startLabel = DateTimeUtils.parseDate(med.getStartDate()).format(DateTimeUtils.DISPLAY_DATE_FORMAT);
+                scheduleText = res.getString(R.string.schedule_fixed_days_upcoming_summary, doseCount, startLabel);
             } else {
+                LocalDate start = DateTimeUtils.parseDate(med.getStartDate());
+                long dayNumber = ChronoUnit.DAYS.between(start, LocalDate.now()) + 1;
                 scheduleText = res.getString(R.string.schedule_fixed_days_summary, doseCount, dayNumber, med.getTotalDays());
             }
         } else {
@@ -71,7 +75,7 @@ public class MedicationAdapter extends RecyclerView.Adapter<MedicationAdapter.Vi
         if (inventory != null) {
             holder.inventory.setText(res.getString(R.string.inventory_summary, inventory.getQuantityRemaining()));
             holder.inventory.setVisibility(View.VISIBLE);
-            holder.lowStockIndicator.setVisibility(inventory.isLowStock() ? View.VISIBLE : View.GONE);
+            holder.lowStockIndicator.setVisibility(ScheduleUtils.isLowStock(med) ? View.VISIBLE : View.GONE);
         } else {
             holder.inventory.setVisibility(View.GONE);
             holder.lowStockIndicator.setVisibility(View.GONE);

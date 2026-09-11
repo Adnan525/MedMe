@@ -19,7 +19,12 @@ import com.adnaan525.medme.data.DataRepository;
 import com.adnaan525.medme.model.Medication;
 import com.adnaan525.medme.model.Patient;
 import com.adnaan525.medme.notifications.AlarmScheduler;
+import com.adnaan525.medme.util.ScheduleUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.tabs.TabLayout;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PatientDetailActivity extends AppCompatActivity {
 
@@ -29,9 +34,10 @@ public class PatientDetailActivity extends AppCompatActivity {
     private String patientId;
     private MedicationAdapter adapter;
     private RecyclerView recyclerView;
-    private View emptyState;
+    private TextView emptyState;
     private Toolbar toolbar;
     private TextView toolbarTitle;
+    private TabLayout tabLayout;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -58,6 +64,22 @@ public class PatientDetailActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
+        tabLayout = findViewById(R.id.tabLayoutMedications);
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                refresh();
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+            }
+        });
+
         FloatingActionButton fab = findViewById(R.id.fabAddMedication);
         fab.setOnClickListener(v -> {
             Intent intent = new Intent(this, AddEditMedicationActivity.class);
@@ -69,14 +91,32 @@ public class PatientDetailActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        refresh();
+    }
+
+    private void refresh() {
         Patient patient = repository.getPatient(patientId);
         if (patient == null) {
             finish();
             return;
         }
         toolbarTitle.setText(patient.getName());
-        adapter.submitList(patient.getMedications());
-        emptyState.setVisibility(patient.getMedications().isEmpty() ? View.VISIBLE : View.GONE);
+
+        List<Medication> active = new ArrayList<>();
+        List<Medication> archived = new ArrayList<>();
+        for (Medication med : patient.getMedications()) {
+            if (ScheduleUtils.isCourseFinished(med)) {
+                archived.add(med);
+            } else {
+                active.add(med);
+            }
+        }
+
+        boolean showingArchive = tabLayout.getSelectedTabPosition() == 1;
+        List<Medication> shown = showingArchive ? archived : active;
+        adapter.submitList(shown);
+        emptyState.setText(showingArchive ? R.string.empty_archive : R.string.empty_medications);
+        emptyState.setVisibility(shown.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     private void openMedication(Medication medication) {

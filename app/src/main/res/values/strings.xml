@@ -29,8 +29,13 @@
     <string name="schedule_recurring_summary">%1$dx daily · ongoing</string>
     <string name="schedule_fixed_days_summary">%1$dx daily · day %2$d of %3$d</string>
     <string name="schedule_fixed_days_ended_summary">%1$dx daily · course finished</string>
+    <string name="schedule_fixed_days_upcoming_summary">%1$dx daily · starts %2$s</string>
     <string name="inventory_summary">%1$d left</string>
     <string name="schedule_fixed_days_summary_full">%1$dx daily for %2$d days, starting %3$s</string>
+    <string name="schedule_fixed_days_summary_full_finished">%1$dx daily for %2$d days, starting %3$s — course finished</string>
+    <string name="tab_active_medications">Active</string>
+    <string name="tab_archived_medications">Archive</string>
+    <string name="empty_archive">No completed courses yet.</string>
     <plurals name="dose_count_recurring">
         <item quantity="one">%1$d time daily · ongoing</item>
         <item quantity="other">%1$d times daily · ongoing</item>
@@ -66,6 +71,7 @@
     <string name="label_inventory">Inventory</string>
     <string name="quantity_remaining">%1$d remaining</string>
     <string name="low_stock_threshold_label">Alert at %1$d or fewer</string>
+    <string name="low_stock_threshold_course_based">Alerts if stock won\'t cover the rest of this course</string>
     <string name="action_log_replenishment">Log replenishment</string>
     <string name="replenishment_quantity">Quantity acquired</string>
     <string name="label_todays_doses">Today\'s doses</string>

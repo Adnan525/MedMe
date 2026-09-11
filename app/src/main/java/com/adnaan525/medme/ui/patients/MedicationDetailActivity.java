@@ -112,7 +112,10 @@ public class MedicationDetailActivity extends AppCompatActivity {
 
         int doseCount = med.getDoseTimes().size();
         if (med.getDurationType() == DurationType.FIXED_DAYS) {
-            textScheduleSummary.setText(getString(R.string.schedule_fixed_days_summary_full, doseCount, med.getTotalDays(),
+            int scheduleStringRes = ScheduleUtils.isCourseFinished(med)
+                    ? R.string.schedule_fixed_days_summary_full_finished
+                    : R.string.schedule_fixed_days_summary_full;
+            textScheduleSummary.setText(getString(scheduleStringRes, doseCount, med.getTotalDays(),
                     DateTimeUtils.parseDate(med.getStartDate()).format(DateTimeUtils.DISPLAY_DATE_FORMAT)));
         } else {
             textScheduleSummary.setText(getResources().getQuantityString(R.plurals.dose_count_recurring, doseCount, doseCount));
@@ -121,7 +124,11 @@ public class MedicationDetailActivity extends AppCompatActivity {
         Inventory inventory = med.getInventory();
         if (inventory != null) {
             textQuantityRemaining.setText(getString(R.string.quantity_remaining, inventory.getQuantityRemaining()));
-            textLowStockThreshold.setText(getString(R.string.low_stock_threshold_label, inventory.getLowStockThreshold()));
+            if (med.getDurationType() == DurationType.FIXED_DAYS) {
+                textLowStockThreshold.setText(R.string.low_stock_threshold_course_based);
+            } else {
+                textLowStockThreshold.setText(getString(R.string.low_stock_threshold_label, inventory.getLowStockThreshold()));
+            }
         }
 
         List<LocalDateTime> occurrences = ScheduleUtils.occurrencesOn(med, LocalDate.now());

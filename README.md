@@ -9,15 +9,21 @@ Built with Java for Android Studio.
 
 ## Features
 
-- **Patients & medications** — organize multiple patients, each with their own medications.
+- **Patients & medications** — organize multiple patients, each with their own medications,
+  split into **Active** and **Archive** tabs (a fixed-duration course moves itself to
+  Archive once its last day has passed — nothing to do manually).
 - **Flexible schedules** — recurring (ongoing) or a fixed duration expressed in days,
   weeks, or months (converted to an exact day count from the start date).
 - **Multiple doses per day** — set as many reminder times per medication as needed.
 - **Reminders** — a local notification per dose time, with a "Mark Taken" action and
   swipe-to-dismiss both logged as taken (see [Notifications](#notifications) below).
 - **Early dosing** — mark a dose taken from within the app before its reminder fires.
-- **Inventory tracking** — log how much medication was acquired; get notified when
-  stock drops to (or below) a configurable threshold.
+- **Inventory tracking** — log how much medication was acquired. For a recurring
+  medication, get notified once stock drops to (or below) a configurable threshold.
+  For a fixed-duration course, the threshold is computed instead of configured: a
+  restock nudge only fires if remaining stock won't cover the doses left in the
+  course (dose-times-per-day × days remaining) — a 7-day, once-daily course with 7
+  left on hand doesn't need a reminder just because "7" happens to be a low number.
 - **Analysis tab** — a delay/earliness chart (MPAndroidChart) plus adherence stats,
   filterable by patient and medication.
 - **Export / import** — back up or restore all data as a single `.json` file via the
