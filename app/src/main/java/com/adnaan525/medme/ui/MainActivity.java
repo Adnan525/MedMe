@@ -17,6 +17,7 @@ import com.adnaan525.medme.notifications.AlarmScheduler;
 import com.adnaan525.medme.ui.about.AboutFragment;
 import com.adnaan525.medme.ui.analysis.AnalysisFragment;
 import com.adnaan525.medme.ui.patients.PatientListFragment;
+import com.adnaan525.medme.util.InsetsUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
@@ -33,7 +34,10 @@ public class MainActivity extends AppCompatActivity {
         AlarmScheduler.rescheduleAll(this);
         maybeRequestNotificationPermission();
 
+        InsetsUtils.applyTopInset(findViewById(R.id.fragmentContainer));
+
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
+        InsetsUtils.applyBottomInset(bottomNav);
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_patients) {

@@ -18,6 +18,7 @@ import com.adnaan525.medme.data.DataRepository;
 import com.adnaan525.medme.model.Medication;
 import com.adnaan525.medme.model.Patient;
 import com.adnaan525.medme.notifications.AlarmScheduler;
+import com.adnaan525.medme.util.InsetsUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class PatientDetailActivity extends AppCompatActivity {
@@ -45,6 +46,8 @@ public class PatientDetailActivity extends AppCompatActivity {
 
         toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
+        InsetsUtils.applyTopInset(toolbar);
+        InsetsUtils.applyBottomInset(findViewById(R.id.rootLayout));
 
         recyclerView = findViewById(R.id.recyclerMedications);
         emptyState = findViewById(R.id.textEmptyState);

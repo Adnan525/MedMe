@@ -25,6 +25,7 @@ import com.adnaan525.medme.model.Patient;
 import com.adnaan525.medme.notifications.AlarmScheduler;
 import com.adnaan525.medme.notifications.NotificationHelper;
 import com.adnaan525.medme.util.DateTimeUtils;
+import com.adnaan525.medme.util.InsetsUtils;
 import com.adnaan525.medme.util.ScheduleUtils;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -68,6 +69,8 @@ public class MedicationDetailActivity extends AppCompatActivity {
 
         toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
+        InsetsUtils.applyTopInset(toolbar);
+        InsetsUtils.applyBottomInset(findViewById(R.id.rootLayout));
 
         textPatientName = findViewById(R.id.textPatientName);
         textMedName = findViewById(R.id.textMedName);

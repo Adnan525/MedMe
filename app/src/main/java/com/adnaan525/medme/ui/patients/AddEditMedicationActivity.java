@@ -24,6 +24,7 @@ import com.adnaan525.medme.model.Medication;
 import com.adnaan525.medme.model.Patient;
 import com.adnaan525.medme.notifications.AlarmScheduler;
 import com.adnaan525.medme.util.DateTimeUtils;
+import com.adnaan525.medme.util.InsetsUtils;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.time.LocalDate;
@@ -73,6 +74,8 @@ public class AddEditMedicationActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
+        InsetsUtils.applyTopInset(toolbar);
+        InsetsUtils.applyBottomInset(findViewById(R.id.rootLayout));
 
         radioGroupDuration.setOnCheckedChangeListener((group, checkedId) ->
                 layoutTotalDays.setVisibility(checkedId == R.id.radioFixedDays ? View.VISIBLE : View.GONE));
