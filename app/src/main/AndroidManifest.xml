@@ -32,7 +32,8 @@
         <activity
             android:name=".ui.patients.AddEditMedicationActivity"
             android:exported="false"
-            android:parentActivityName=".ui.patients.PatientDetailActivity" />
+            android:parentActivityName=".ui.patients.PatientDetailActivity"
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".ui.patients.MedicationDetailActivity"
