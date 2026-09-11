@@ -177,7 +177,7 @@ public class AddEditMedicationActivity extends AppCompatActivity {
                 LocalTime updated = LocalTime.of(hourOfDay, minute);
                 row.setTag(updated);
                 textTimeValue.setText(updated.format(DateTimeUtils.DISPLAY_TIME_FORMAT));
-            }, current.getHour(), current.getMinute(), false).show();
+            }, current.getHour(), current.getMinute(), true).show();
         });
 
         buttonRemoveTime.setOnClickListener(v -> {
