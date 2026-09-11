@@ -40,6 +40,22 @@ user on the About screen.
 Swiping a reminder notification away is treated the same as tapping "Mark Taken" — it
 logs the dose as taken at that moment, which feeds the delay/earliness analysis.
 
+## Changing the app icon
+
+The launcher icon (legacy + adaptive, every density) and the Play Store hi-res icon
+are all generated from one source file: `store_assets/medme_logo_source.png`. To
+change it: replace that file with your new square PNG, then run:
+
+```
+pip install pillow   # first time only
+python3 scripts/generate_launcher_icons.py
+```
+
+This regenerates every `mipmap-*` icon, the 512x512 store listing icon, and the
+adaptive icon's background gradient (sampled from the new logo's own colors), then
+re-sync/rebuild in Android Studio. You can also pass a different source path:
+`python3 scripts/generate_launcher_icons.py path/to/other-logo.png`.
+
 ## Building
 
 Requires Android Studio (or the Gradle wrapper + Android SDK on the command line).
