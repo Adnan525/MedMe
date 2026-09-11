@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,10 +25,10 @@ import com.adnaan525.medme.model.Patient;
 import com.adnaan525.medme.notifications.AlarmScheduler;
 import com.adnaan525.medme.util.DateTimeUtils;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -44,8 +45,9 @@ public class AddEditMedicationActivity extends AppCompatActivity {
 
     private TextInputEditText editMedName;
     private RadioGroup radioGroupDuration;
-    private TextInputLayout layoutTotalDays;
+    private View layoutTotalDays;
     private TextInputEditText editTotalDays;
+    private Spinner spinnerDurationUnit;
     private Button buttonPickStartDate;
     private android.widget.LinearLayout containerDoseTimes;
     private View layoutInitialQuantity;
@@ -114,6 +116,7 @@ public class AddEditMedicationActivity extends AppCompatActivity {
         radioGroupDuration = findViewById(R.id.radioGroupDuration);
         layoutTotalDays = findViewById(R.id.layoutTotalDays);
         editTotalDays = findViewById(R.id.editTotalDays);
+        spinnerDurationUnit = findViewById(R.id.spinnerDurationUnit);
         buttonPickStartDate = findViewById(R.id.buttonPickStartDate);
         containerDoseTimes = findViewById(R.id.containerDoseTimes);
         layoutInitialQuantity = findViewById(R.id.layoutInitialQuantity);
@@ -193,6 +196,19 @@ public class AddEditMedicationActivity extends AppCompatActivity {
         }
     }
 
+    /** Converts a duration entered as days/weeks/months into a day count, anchored to startDate so month lengths are exact. */
+    private int totalDaysFor(int quantity, int unitPosition) {
+        switch (unitPosition) {
+            case 1: // Weeks
+                return quantity * 7;
+            case 2: // Months
+                return (int) ChronoUnit.DAYS.between(startDate, startDate.plusMonths(quantity));
+            case 0: // Days
+            default:
+                return quantity;
+        }
+    }
+
     private void save() {
         String name = editMedName.getText() != null ? editMedName.getText().toString().trim() : "";
         if (name.isEmpty()) {
@@ -203,15 +219,17 @@ public class AddEditMedicationActivity extends AppCompatActivity {
         boolean isFixedDays = radioGroupDuration.getCheckedRadioButtonId() == R.id.radioFixedDays;
         int totalDays = 0;
         if (isFixedDays) {
+            int quantity;
             try {
-                totalDays = Integer.parseInt(editTotalDays.getText().toString().trim());
-                if (totalDays <= 0) {
+                quantity = Integer.parseInt(editTotalDays.getText().toString().trim());
+                if (quantity <= 0) {
                     throw new NumberFormatException();
                 }
             } catch (NumberFormatException e) {
                 editTotalDays.setError(getString(R.string.error_total_days_required));
                 return;
             }
+            totalDays = totalDaysFor(quantity, spinnerDurationUnit.getSelectedItemPosition());
         }
 
         List<LocalTime> times = new ArrayList<>();

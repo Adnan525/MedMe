@@ -39,8 +39,13 @@
     <string name="hint_medication_name">Medication name</string>
     <string name="label_duration">Duration</string>
     <string name="duration_recurring">Recurring (no end date)</string>
-    <string name="duration_fixed_days">Fixed number of days</string>
-    <string name="hint_total_days">Number of days</string>
+    <string name="duration_fixed_days">Fixed duration</string>
+    <string name="hint_total_days">Duration</string>
+    <string-array name="duration_units">
+        <item>Days</item>
+        <item>Weeks</item>
+        <item>Months</item>
+    </string-array>
     <string name="label_start_date">Start date</string>
     <string name="label_dose_times">Times per day</string>
     <string name="change_time">Change</string>
