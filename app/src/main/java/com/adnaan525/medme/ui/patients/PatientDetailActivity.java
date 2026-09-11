@@ -45,6 +45,7 @@ public class PatientDetailActivity extends AppCompatActivity {
         }
 
         toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
         InsetsUtils.applyTopInset(toolbar);
         InsetsUtils.applyBottomInset(findViewById(R.id.rootLayout));
