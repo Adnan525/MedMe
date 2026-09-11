@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_patients"
+        android:icon="@drawable/ic_nav_patients"
+        android:title="@string/tab_patients" />
+    <item
+        android:id="@+id/nav_analysis"
+        android:icon="@drawable/ic_nav_analysis"
+        android:title="@string/tab_analysis" />
+    <item
+        android:id="@+id/nav_about"
+        android:icon="@drawable/ic_nav_about"
+        android:title="@string/tab_about" />
+</menu>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MedMe</string>
+
+    <!-- Bottom navigation -->
+    <string name="tab_patients">Patients</string>
+    <string name="tab_analysis">Analysis</string>
+    <string name="tab_about">About</string>
+
+    <!-- Patients tab -->
+    <string name="empty_patients">No patients yet. Tap + to add one.</string>
+    <string name="add_patient">Add patient</string>
+    <string name="patient_name">Patient name</string>
+    <plurals name="medication_count">
+        <item quantity="zero">No medications</item>
+        <item quantity="one">1 medication</item>
+        <item quantity="other">%d medications</item>
+    </plurals>
+    <string name="menu_delete_patient">Delete patient</string>
+    <string name="confirm_delete_patient">Delete %1$s and all of their medications and history? This can\'t be undone.</string>
+
+    <!-- Medications list -->
+    <string name="empty_medications">No medications yet. Tap + to add one.</string>
+    <string name="add_medication">Add medication</string>
+    <string name="edit_medication">Edit medication</string>
+    <string name="menu_delete_medication">Delete medication</string>
+    <string name="confirm_delete_medication">Delete %1$s and its dose history? This can\'t be undone.</string>
+    <string name="schedule_recurring_summary">%1$dx daily · ongoing</string>
+    <string name="schedule_fixed_days_summary">%1$dx daily · day %2$d of %3$d</string>
+    <string name="schedule_fixed_days_ended_summary">%1$dx daily · course finished</string>
+    <string name="inventory_summary">%1$d left</string>
+    <string name="schedule_fixed_days_summary_full">%1$dx daily for %2$d days, starting %3$s</string>
+    <plurals name="dose_count_recurring">
+        <item quantity="one">%1$d time daily · ongoing</item>
+        <item quantity="other">%1$d times daily · ongoing</item>
+    </plurals>
+
+    <!-- Add/edit medication form -->
+    <string name="hint_medication_name">Medication name</string>
+    <string name="label_duration">Duration</string>
+    <string name="duration_recurring">Recurring (no end date)</string>
+    <string name="duration_fixed_days">Fixed number of days</string>
+    <string name="hint_total_days">Number of days</string>
+    <string name="label_start_date">Start date</string>
+    <string name="label_dose_times">Times per day</string>
+    <string name="change_time">Change</string>
+    <string name="remove_time">Remove this time</string>
+    <string name="add_another_time">Add another time</string>
+    <string name="hint_initial_quantity">Quantity acquired</string>
+    <string name="hint_low_stock_threshold">Notify when this many are left</string>
+    <string name="default_low_stock_threshold">2</string>
+    <string name="action_save">Save</string>
+    <string name="error_name_required">Medication name is required</string>
+    <string name="error_total_days_required">Enter a valid number of days</string>
+    <string name="error_time_required">Add at least one dose time</string>
+    <string name="error_quantity_required">Enter a valid starting quantity</string>
+    <string name="error_threshold_required">Enter a valid threshold</string>
+
+    <!-- Medication detail -->
+    <string name="label_inventory">Inventory</string>
+    <string name="quantity_remaining">%1$d remaining</string>
+    <string name="low_stock_threshold_label">Alert at %1$d or fewer</string>
+    <string name="action_log_replenishment">Log replenishment</string>
+    <string name="replenishment_quantity">Quantity acquired</string>
+    <string name="label_todays_doses">Today\'s doses</string>
+    <string name="no_doses_today">No doses scheduled for today.</string>
+    <string name="action_mark_taken">Mark taken</string>
+    <string name="dose_status_pending">Not taken yet</string>
+    <string name="dose_status_taken">Taken at %1$s</string>
+    <string name="dose_status_missed">Missed</string>
+
+    <!-- Notifications -->
+    <string name="channel_dose_reminders_name">Dose reminders</string>
+    <string name="channel_dose_reminders_description">Reminders to take a medication at its scheduled time</string>
+    <string name="channel_low_stock_name">Low stock alerts</string>
+    <string name="channel_low_stock_description">Alerts when a medication is running low</string>
+    <string name="notification_dose_title">Time to take %1$s</string>
+    <string name="notification_dose_text">%1$s · scheduled for %2$s</string>
+    <string name="notification_low_stock_title">%1$s is running low</string>
+    <string name="notification_low_stock_text">%1$s has %2$d left — time to restock</string>
+
+    <!-- Analysis tab -->
+    <string name="label_select_patient">Patient</string>
+    <string name="label_select_medication">Medication</string>
+    <string name="all_medications">All medications</string>
+    <string name="no_patients_for_analysis">Add a patient and medication to see analysis.</string>
+    <string name="no_dose_data">No doses logged as taken yet for this selection.</string>
+    <string name="chart_delay_axis_label">Minutes early / late</string>
+    <string name="stat_average_delay">Average</string>
+    <string name="stat_adherence">Adherence</string>
+    <string name="stat_missed">Missed</string>
+    <string name="minutes_late">%1$d min late</string>
+    <string name="minutes_early">%1$d min early</string>
+    <string name="on_time">On time</string>
+
+    <!-- About tab -->
+    <string name="about_message">Created by Muntasir Adnan.\nContact: adnaan525@gmail.com\n\nAll your data stays on this device in a single file — nothing is collected or sent anywhere.</string>
+    <string name="about_power_saving_note">Reminders use Android\'s power-saving alarm mode, so a notification may arrive a few minutes after its scheduled time on some devices. This is intentional — it avoids draining your battery and keeps this app from needing extra permissions.</string>
+    <string name="version_format">Version %1$s</string>
+    <string name="action_export_data">Export data</string>
+    <string name="action_import_data">Import data</string>
+    <string name="export_success">Backup saved</string>
+    <string name="export_failure">Couldn\'t save backup: %1$s</string>
+    <string name="import_confirm_title">Import backup?</string>
+    <string name="import_confirm_message">This replaces all current data on this device with the contents of the selected file.</string>
+    <string name="import_success">Data imported</string>
+    <string name="import_failure">Couldn\'t import: %1$s</string>
+
+    <!-- Common -->
+    <string name="action_cancel">Cancel</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_ok">OK</string>
+</resources>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Light theme -->
+    <color name="md_primary">#2a78d6</color>
+    <color name="md_on_primary">#ffffff</color>
+    <color name="md_primary_container">#cde2fb</color>
+    <color name="md_on_primary_container">#0d366b</color>
+    <color name="md_surface">#fcfcfb</color>
+    <color name="md_on_surface">#0b0b0b</color>
+    <color name="md_on_surface_variant">#52514e</color>
+    <color name="md_background">#f9f9f7</color>
+    <color name="md_outline">#c3c2b7</color>
+
+    <!-- Chart roles (see AnalysisFragment) -->
+    <color name="chart_line">#2a78d6</color>
+    <color name="chart_zero_line">#898781</color>
+    <color name="chart_grid">#e1e0d9</color>
+    <color name="chart_text">#52514e</color>
+</resources>
