@@ -2,9 +2,10 @@ package com.adnaan525.medme.ui.patients;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
+import android.widget.PopupMenu;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -31,6 +32,7 @@ public class PatientDetailActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private View emptyState;
     private Toolbar toolbar;
+    private TextView toolbarTitle;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -45,10 +47,13 @@ public class PatientDetailActivity extends AppCompatActivity {
         }
 
         toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        toolbarTitle = findViewById(R.id.textToolbarTitle);
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
         InsetsUtils.applyTopInset(toolbar);
         InsetsUtils.applyBottomInset(findViewById(R.id.rootLayout));
+
+        ImageButton buttonMoreOptions = findViewById(R.id.buttonMoreOptions);
+        buttonMoreOptions.setOnClickListener(this::showOverflowMenu);
 
         recyclerView = findViewById(R.id.recyclerMedications);
         emptyState = findViewById(R.id.textEmptyState);
@@ -72,7 +77,7 @@ public class PatientDetailActivity extends AppCompatActivity {
             finish();
             return;
         }
-        toolbar.setTitle(patient.getName());
+        toolbarTitle.setText(patient.getName());
         adapter.submitList(patient.getMedications());
         emptyState.setVisibility(patient.getMedications().isEmpty() ? View.VISIBLE : View.GONE);
     }
@@ -84,19 +89,17 @@ public class PatientDetailActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_patient_detail, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_delete_patient) {
-            confirmDeletePatient();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+    private void showOverflowMenu(View anchor) {
+        PopupMenu popup = new PopupMenu(this, anchor);
+        popup.inflate(R.menu.menu_patient_detail);
+        popup.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.action_delete_patient) {
+                confirmDeletePatient();
+                return true;
+            }
+            return false;
+        });
+        popup.show();
     }
 
     private void confirmDeletePatient() {

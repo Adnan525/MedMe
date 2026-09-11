@@ -16,6 +16,7 @@
         <item quantity="one">1 medication</item>
         <item quantity="other">%d medications</item>
     </plurals>
+    <string name="more_options">More options</string>
     <string name="menu_delete_patient">Delete patient</string>
     <string name="confirm_delete_patient">Delete %1$s and all of their medications and history? This can\'t be undone.</string>
 

@@ -3,9 +3,9 @@ package com.adnaan525.medme.ui.patients;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
+import android.widget.PopupMenu;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -68,10 +68,12 @@ public class MedicationDetailActivity extends AppCompatActivity {
         }
 
         toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
         InsetsUtils.applyTopInset(toolbar);
         InsetsUtils.applyBottomInset(findViewById(R.id.rootLayout));
+
+        ImageButton buttonMoreOptions = findViewById(R.id.buttonMoreOptions);
+        buttonMoreOptions.setOnClickListener(this::showOverflowMenu);
 
         textPatientName = findViewById(R.id.textPatientName);
         textMedName = findViewById(R.id.textMedName);
@@ -110,7 +112,6 @@ public class MedicationDetailActivity extends AppCompatActivity {
 
         textPatientName.setText(patient.getName());
         textMedName.setText(med.getName());
-        toolbar.setTitle(med.getName());
 
         int doseCount = med.getDoseTimes().size();
         if (med.getDurationType() == DurationType.FIXED_DAYS) {
@@ -184,25 +185,23 @@ public class MedicationDetailActivity extends AppCompatActivity {
                 .show();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_medication_detail, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_edit_medication) {
-            Intent intent = new Intent(this, AddEditMedicationActivity.class);
-            intent.putExtra(AddEditMedicationActivity.EXTRA_PATIENT_ID, patientId);
-            intent.putExtra(AddEditMedicationActivity.EXTRA_MEDICATION_ID, medicationId);
-            startActivity(intent);
-            return true;
-        } else if (item.getItemId() == R.id.action_delete_medication) {
-            confirmDelete();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+    private void showOverflowMenu(View anchor) {
+        PopupMenu popup = new PopupMenu(this, anchor);
+        popup.inflate(R.menu.menu_medication_detail);
+        popup.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.action_edit_medication) {
+                Intent intent = new Intent(this, AddEditMedicationActivity.class);
+                intent.putExtra(AddEditMedicationActivity.EXTRA_PATIENT_ID, patientId);
+                intent.putExtra(AddEditMedicationActivity.EXTRA_MEDICATION_ID, medicationId);
+                startActivity(intent);
+                return true;
+            } else if (item.getItemId() == R.id.action_delete_medication) {
+                confirmDelete();
+                return true;
+            }
+            return false;
+        });
+        popup.show();
     }
 
     private void confirmDelete() {
