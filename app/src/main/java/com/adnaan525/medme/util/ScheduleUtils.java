@@ -1,5 +1,7 @@
 package com.adnaan525.medme.util;
 
+import com.adnaan525.medme.model.DoseLog;
+import com.adnaan525.medme.model.DoseStatus;
 import com.adnaan525.medme.model.DurationType;
 import com.adnaan525.medme.model.Inventory;
 import com.adnaan525.medme.model.Medication;
@@ -7,7 +9,6 @@ import com.adnaan525.medme.model.Medication;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,22 +78,27 @@ public final class ScheduleUtils {
     }
 
     /**
-     * Doses still needed to finish a FIXED_DAYS course from {@code from} (inclusive) onward -
-     * dose-times-per-day x days remaining. Returns 0 once the course has finished, and -1 for
-     * RECURRING medications, where "enough to finish" doesn't apply (no end date).
+     * Doses still needed to finish a FIXED_DAYS course - total course doses (days x doses/day)
+     * minus doses already accounted for (taken, which drew down stock, or missed, which won't).
+     * This is log-based rather than calendar-based on purpose: a calendar calculation like
+     * "days remaining x doses/day" doesn't know a dose was already taken today, so right after
+     * marking today's only dose taken on a 2-day course it would still say "2 needed" (today +
+     * tomorrow) instead of the 1 actually left - triggering a false low-stock alert. Counting
+     * from the logs instead reflects what's actually still going to be consumed. Returns -1 for
+     * RECURRING/AS_NEEDED medications, where "enough to finish" doesn't apply (no end date).
      */
-    public static int dosesNeededForRestOfCourse(Medication med, LocalDate from) {
+    public static int dosesNeededForRestOfCourse(Medication med) {
         if (med.getDurationType() != DurationType.FIXED_DAYS) {
             return -1;
         }
-        LocalDate start = DateTimeUtils.parseDate(med.getStartDate());
-        LocalDate end = courseEndDate(med);
-        LocalDate effectiveFrom = from.isBefore(start) ? start : from;
-        if (effectiveFrom.isAfter(end)) {
-            return 0;
+        int totalCourseDoses = med.getTotalDays() * med.getDoseTimes().size();
+        int accountedFor = 0;
+        for (DoseLog log : med.getDoseLogs()) {
+            if (log.getStatus() == DoseStatus.TAKEN || log.getStatus() == DoseStatus.MISSED) {
+                accountedFor++;
+            }
         }
-        long daysLeft = ChronoUnit.DAYS.between(effectiveFrom, end) + 1;
-        return (int) (daysLeft * med.getDoseTimes().size());
+        return Math.max(0, totalCourseDoses - accountedFor);
     }
 
     /**
@@ -108,7 +114,7 @@ public final class ScheduleUtils {
             return false;
         }
         if (med.getDurationType() == DurationType.FIXED_DAYS) {
-            return inventory.getQuantityRemaining() < dosesNeededForRestOfCourse(med, LocalDate.now());
+            return inventory.getQuantityRemaining() < dosesNeededForRestOfCourse(med);
         }
         return inventory.isLowStock();
     }
