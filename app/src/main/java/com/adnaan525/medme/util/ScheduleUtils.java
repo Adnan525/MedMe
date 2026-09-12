@@ -144,20 +144,24 @@ public final class ScheduleUtils {
     }
 
     /**
-     * How many doses of this medication to pack for a trip of {@code tripDays} days starting
-     * today - dose-times-per-day x days to pack for. For a FIXED_DAYS course, days-to-pack-for
-     * is capped at the days actually left in the course (no point packing for after it ends).
-     * Returns -1 for AS_NEEDED medications, where there's no schedule to size a quantity against.
+     * How many doses of this medication to pack for a trip of {@code tripDays} days - dose-
+     * times-per-day x tripDays, capped for a FIXED_DAYS course at the doses actually still left
+     * in it (no point packing for doses after it ends). That cap is log-based
+     * (dosesNeededForRestOfCourse), not a calendar day-count: a day-count doesn't know a dose
+     * was already taken today, so on a 2-day once-daily course with today's dose already taken,
+     * it would say "2 left" (today + tomorrow) instead of the 1 actually remaining - overstating
+     * both how many to pack and how many are needed to have "enough" on hand. Returns -1 for
+     * AS_NEEDED medications, where there's no schedule to size a quantity against.
      */
     public static int packingQuantityForTrip(Medication med, int tripDays) {
         if (med.getDurationType() == DurationType.AS_NEEDED) {
             return -1;
         }
         int dosesPerDay = med.getDoseTimes().size();
-        long daysToPack = tripDays;
+        int tripQuantity = tripDays * dosesPerDay;
         if (med.getDurationType() == DurationType.FIXED_DAYS) {
-            daysToPack = Math.min(tripDays, remainingCourseDays(med, LocalDate.now()));
+            return Math.min(tripQuantity, dosesNeededForRestOfCourse(med));
         }
-        return (int) (daysToPack * dosesPerDay);
+        return tripQuantity;
     }
 }
