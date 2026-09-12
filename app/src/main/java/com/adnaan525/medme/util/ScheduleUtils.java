@@ -9,6 +9,7 @@ import com.adnaan525.medme.model.Medication;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -125,5 +126,38 @@ public final class ScheduleUtils {
      */
     public static boolean isArchived(Medication med) {
         return isCourseFinished(med) || !med.isActive();
+    }
+
+    /**
+     * Days from {@code from} through a FIXED_DAYS course's end date, inclusive - clamped so a
+     * course that hasn't started yet is measured from its own start, not from today. 0 once the
+     * course has finished. Meaningless for RECURRING/AS_NEEDED (no end date).
+     */
+    public static long remainingCourseDays(Medication med, LocalDate from) {
+        LocalDate start = DateTimeUtils.parseDate(med.getStartDate());
+        LocalDate end = courseEndDate(med);
+        LocalDate effectiveFrom = from.isBefore(start) ? start : from;
+        if (effectiveFrom.isAfter(end)) {
+            return 0;
+        }
+        return ChronoUnit.DAYS.between(effectiveFrom, end) + 1;
+    }
+
+    /**
+     * How many doses of this medication to pack for a trip of {@code tripDays} days starting
+     * today - dose-times-per-day x days to pack for. For a FIXED_DAYS course, days-to-pack-for
+     * is capped at the days actually left in the course (no point packing for after it ends).
+     * Returns -1 for AS_NEEDED medications, where there's no schedule to size a quantity against.
+     */
+    public static int packingQuantityForTrip(Medication med, int tripDays) {
+        if (med.getDurationType() == DurationType.AS_NEEDED) {
+            return -1;
+        }
+        int dosesPerDay = med.getDoseTimes().size();
+        long daysToPack = tripDays;
+        if (med.getDurationType() == DurationType.FIXED_DAYS) {
+            daysToPack = Math.min(tripDays, remainingCourseDays(med, LocalDate.now()));
+        }
+        return (int) (daysToPack * dosesPerDay);
     }
 }

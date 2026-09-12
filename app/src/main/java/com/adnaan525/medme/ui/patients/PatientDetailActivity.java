@@ -2,10 +2,13 @@ package com.adnaan525.medme.ui.patients;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -22,6 +25,8 @@ import com.adnaan525.medme.notifications.AlarmScheduler;
 import com.adnaan525.medme.util.ScheduleUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -130,13 +135,45 @@ public class PatientDetailActivity extends AppCompatActivity {
         PopupMenu popup = new PopupMenu(this, anchor);
         popup.inflate(R.menu.menu_patient_detail);
         popup.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() == R.id.action_delete_patient) {
+            if (item.getItemId() == R.id.action_travel_summary) {
+                promptTravelDays();
+                return true;
+            } else if (item.getItemId() == R.id.action_delete_patient) {
                 confirmDeletePatient();
                 return true;
             }
             return false;
         });
         popup.show();
+    }
+
+    private void promptTravelDays() {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_single_input, null);
+        TextInputEditText input = dialogView.findViewById(R.id.editInput);
+        TextInputLayout inputLayout = dialogView.findViewById(R.id.inputLayout);
+        inputLayout.setHint(getString(R.string.hint_travel_days));
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.action_travel_summary)
+                .setView(dialogView)
+                .setPositiveButton(R.string.action_ok, (dialog, which) -> {
+                    String text = input.getText() != null ? input.getText().toString().trim() : "";
+                    try {
+                        int days = Integer.parseInt(text);
+                        if (days <= 0) {
+                            throw new NumberFormatException();
+                        }
+                        Intent intent = new Intent(this, TravelSummaryActivity.class);
+                        intent.putExtra(TravelSummaryActivity.EXTRA_PATIENT_ID, patientId);
+                        intent.putExtra(TravelSummaryActivity.EXTRA_TRIP_DAYS, days);
+                        startActivity(intent);
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(this, R.string.error_travel_days_required, Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton(R.string.action_cancel, null)
+                .show();
     }
 
     private void confirmDeletePatient() {

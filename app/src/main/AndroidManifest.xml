@@ -40,6 +40,11 @@
             android:exported="false"
             android:parentActivityName=".ui.patients.PatientDetailActivity" />
 
+        <activity
+            android:name=".ui.patients.TravelSummaryActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.patients.PatientDetailActivity" />
+
         <receiver
             android:name=".notifications.DoseAlarmReceiver"
             android:exported="false" />

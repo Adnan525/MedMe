@@ -130,4 +130,20 @@
     <string name="action_cancel">Cancel</string>
     <string name="action_delete">Delete</string>
     <string name="action_ok">OK</string>
+
+    <!-- Travel summary -->
+    <string name="action_travel_summary">Travel summary</string>
+    <string name="hint_travel_days">Number of days</string>
+    <string name="error_travel_days_required">Enter a valid number of days</string>
+    <plurals name="travel_days_count">
+        <item quantity="one">%1$d day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
+    <string name="travel_summary_subtitle">Travel summary — %1$s</string>
+    <string name="travel_bring_quantity">Bring %1$d</string>
+    <string name="travel_bring_quantity_course_ends">Bring %1$d (course ends after day %2$d of your trip)</string>
+    <string name="travel_unknown_quantity">As needed — exact amount unknown, pack some just in case</string>
+    <string name="travel_stock_sufficient">%1$d on hand — enough</string>
+    <string name="travel_stock_insufficient">Only %1$d on hand — get %2$d more before you go</string>
+    <string name="empty_travel_summary">No active medications to pack for this patient.</string>
 </resources>

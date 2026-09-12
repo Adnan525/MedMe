@@ -32,6 +32,11 @@ Built with Java for Android Studio.
   left on hand doesn't need a reminder just because "7" happens to be a low number.
 - **Analysis tab** — a delay/earliness chart (MPAndroidChart) plus adherence stats,
   filterable by patient and medication.
+- **Travel summary** — from a patient's ⋮ menu, enter a trip length and get a packing
+  list: computed dose counts for each active medication (capped to the days actually
+  left in a fixed-duration course, so it doesn't over-count past when a course ends),
+  a have-enough-on-hand check against current stock, and as-needed medications listed
+  with an explicit "amount unknown" note rather than a guessed number.
 - **Export / import** — back up or restore all data as a single `.json` file via the
   system file picker (Storage Access Framework). No cloud, no account.
 
