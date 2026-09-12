@@ -105,7 +105,7 @@ public class PatientDetailActivity extends AppCompatActivity {
         List<Medication> active = new ArrayList<>();
         List<Medication> archived = new ArrayList<>();
         for (Medication med : patient.getMedications()) {
-            if (ScheduleUtils.isCourseFinished(med)) {
+            if (ScheduleUtils.isArchived(med)) {
                 archived.add(med);
             } else {
                 active.add(med);

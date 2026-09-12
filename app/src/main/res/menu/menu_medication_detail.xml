@@ -5,6 +5,10 @@
         android:title="@string/edit_medication"
         android:showAsAction="never" />
     <item
+        android:id="@+id/action_archive_medication"
+        android:title="@string/action_archive_medication"
+        android:showAsAction="never" />
+    <item
         android:id="@+id/action_delete_medication"
         android:title="@string/menu_delete_medication"
         android:showAsAction="never" />

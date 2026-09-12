@@ -33,9 +33,15 @@
     <string name="inventory_summary">%1$d left</string>
     <string name="schedule_fixed_days_summary_full">%1$dx daily for %2$d days, starting %3$s</string>
     <string name="schedule_fixed_days_summary_full_finished">%1$dx daily for %2$d days, starting %3$s — course finished</string>
+    <string name="schedule_archived_summary">Archived</string>
+    <string name="schedule_as_needed_summary">Take as needed · no reminders</string>
     <string name="tab_active_medications">Active</string>
     <string name="tab_archived_medications">Archive</string>
-    <string name="empty_archive">No completed courses yet.</string>
+    <string name="empty_archive">No archived medications yet.</string>
+    <string name="action_archive_medication">Archive medication</string>
+    <string name="action_unarchive_medication">Unarchive medication</string>
+    <string name="action_log_dose_now">Log dose taken now</string>
+    <string name="as_needed_dose_logged">Logged</string>
     <plurals name="dose_count_recurring">
         <item quantity="one">%1$d time daily · ongoing</item>
         <item quantity="other">%1$d times daily · ongoing</item>
@@ -46,6 +52,8 @@
     <string name="label_duration">Duration</string>
     <string name="duration_recurring">Recurring (no end date)</string>
     <string name="duration_fixed_days">Fixed duration</string>
+    <string name="duration_as_needed">As needed (no reminders)</string>
+    <string name="as_needed_note">No reminder times are set for this medication. Use \"Log dose taken now\" on its detail screen whenever you take one, so stock stays accurate.</string>
     <string name="hint_total_days">Duration</string>
     <string-array name="duration_units">
         <item>Days</item>

@@ -3,9 +3,11 @@ package com.adnaan525.medme.ui.patients;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -51,6 +53,8 @@ public class MedicationDetailActivity extends AppCompatActivity {
     private android.widget.TextView textLowStockThreshold;
     private RecyclerView recyclerTodayDoses;
     private View textNoDosesToday;
+    private View layoutTodaysDosesSection;
+    private View layoutAsNeededSection;
     private TodayDoseAdapter adapter;
 
     @Override
@@ -79,12 +83,15 @@ public class MedicationDetailActivity extends AppCompatActivity {
         textLowStockThreshold = findViewById(R.id.textLowStockThreshold);
         recyclerTodayDoses = findViewById(R.id.recyclerTodayDoses);
         textNoDosesToday = findViewById(R.id.textNoDosesToday);
+        layoutTodaysDosesSection = findViewById(R.id.layoutTodaysDosesSection);
+        layoutAsNeededSection = findViewById(R.id.layoutAsNeededSection);
 
         adapter = new TodayDoseAdapter(this::markTaken);
         recyclerTodayDoses.setLayoutManager(new LinearLayoutManager(this));
         recyclerTodayDoses.setAdapter(adapter);
 
         findViewById(R.id.buttonReplenish).setOnClickListener(v -> showReplenishDialog());
+        findViewById(R.id.buttonLogDoseNow).setOnClickListener(v -> logDoseNow());
     }
 
     @Override
@@ -111,7 +118,12 @@ public class MedicationDetailActivity extends AppCompatActivity {
         textMedName.setText(med.getName());
 
         int doseCount = med.getDoseTimes().size();
-        if (med.getDurationType() == DurationType.FIXED_DAYS) {
+        boolean isAsNeeded = med.getDurationType() == DurationType.AS_NEEDED;
+        if (!med.isActive()) {
+            textScheduleSummary.setText(R.string.schedule_archived_summary);
+        } else if (isAsNeeded) {
+            textScheduleSummary.setText(R.string.schedule_as_needed_summary);
+        } else if (med.getDurationType() == DurationType.FIXED_DAYS) {
             int scheduleStringRes = ScheduleUtils.isCourseFinished(med)
                     ? R.string.schedule_fixed_days_summary_full_finished
                     : R.string.schedule_fixed_days_summary_full;
@@ -131,29 +143,44 @@ public class MedicationDetailActivity extends AppCompatActivity {
             }
         }
 
-        List<LocalDateTime> occurrences = ScheduleUtils.occurrencesOn(med, LocalDate.now());
-        List<TodayDoseAdapter.Row> rows = new ArrayList<>();
-        for (LocalDateTime occurrence : occurrences) {
-            String iso = DateTimeUtils.formatDateTime(occurrence);
-            DoseLog match = null;
-            for (DoseLog log : med.getDoseLogs()) {
-                if (log.getScheduledDateTime().equals(iso)) {
-                    match = log;
-                    break;
+        layoutTodaysDosesSection.setVisibility(isAsNeeded ? View.GONE : View.VISIBLE);
+        layoutAsNeededSection.setVisibility(isAsNeeded ? View.VISIBLE : View.GONE);
+
+        if (!isAsNeeded) {
+            List<LocalDateTime> occurrences = ScheduleUtils.occurrencesOn(med, LocalDate.now());
+            List<TodayDoseAdapter.Row> rows = new ArrayList<>();
+            for (LocalDateTime occurrence : occurrences) {
+                String iso = DateTimeUtils.formatDateTime(occurrence);
+                DoseLog match = null;
+                for (DoseLog log : med.getDoseLogs()) {
+                    if (log.getScheduledDateTime().equals(iso)) {
+                        match = log;
+                        break;
+                    }
+                }
+                if (match != null) {
+                    LocalDateTime actual = match.getActualTakenDateTime() != null
+                            ? DateTimeUtils.parseDateTime(match.getActualTakenDateTime())
+                            : null;
+                    rows.add(new TodayDoseAdapter.Row(occurrence, match.getStatus(), actual));
+                } else {
+                    rows.add(new TodayDoseAdapter.Row(occurrence, DoseStatus.PENDING, null));
                 }
             }
-            if (match != null) {
-                LocalDateTime actual = match.getActualTakenDateTime() != null
-                        ? DateTimeUtils.parseDateTime(match.getActualTakenDateTime())
-                        : null;
-                rows.add(new TodayDoseAdapter.Row(occurrence, match.getStatus(), actual));
-            } else {
-                rows.add(new TodayDoseAdapter.Row(occurrence, DoseStatus.PENDING, null));
-            }
+            adapter.submitList(rows);
+            textNoDosesToday.setVisibility(rows.isEmpty() ? View.VISIBLE : View.GONE);
+            recyclerTodayDoses.setVisibility(rows.isEmpty() ? View.GONE : View.VISIBLE);
         }
-        adapter.submitList(rows);
-        textNoDosesToday.setVisibility(rows.isEmpty() ? View.VISIBLE : View.GONE);
-        recyclerTodayDoses.setVisibility(rows.isEmpty() ? View.GONE : View.VISIBLE);
+    }
+
+    private void logDoseNow() {
+        LocalDateTime now = LocalDateTime.now();
+        DataRepository.DoseTakenResult result = repository.markTakenForOccurrence(medicationId, now, now);
+        if (result != null && result.triggersLowStockNotification) {
+            NotificationHelper.showLowStock(this, result.patient, result.medication);
+        }
+        Toast.makeText(this, R.string.as_needed_dose_logged, Toast.LENGTH_SHORT).show();
+        refresh();
     }
 
     private void markTaken(LocalDateTime scheduled) {
@@ -190,14 +217,22 @@ public class MedicationDetailActivity extends AppCompatActivity {
     }
 
     private void showOverflowMenu(View anchor) {
+        Medication med = currentMedication();
         PopupMenu popup = new PopupMenu(this, anchor);
         popup.inflate(R.menu.menu_medication_detail);
+        if (med != null) {
+            MenuItem archiveItem = popup.getMenu().findItem(R.id.action_archive_medication);
+            archiveItem.setTitle(med.isActive() ? R.string.action_archive_medication : R.string.action_unarchive_medication);
+        }
         popup.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.action_edit_medication) {
                 Intent intent = new Intent(this, AddEditMedicationActivity.class);
                 intent.putExtra(AddEditMedicationActivity.EXTRA_PATIENT_ID, patientId);
                 intent.putExtra(AddEditMedicationActivity.EXTRA_MEDICATION_ID, medicationId);
                 startActivity(intent);
+                return true;
+            } else if (item.getItemId() == R.id.action_archive_medication) {
+                toggleArchived();
                 return true;
             } else if (item.getItemId() == R.id.action_delete_medication) {
                 confirmDelete();
@@ -206,6 +241,22 @@ public class MedicationDetailActivity extends AppCompatActivity {
             return false;
         });
         popup.show();
+    }
+
+    private void toggleArchived() {
+        Medication med = currentMedication();
+        if (med == null) {
+            return;
+        }
+        boolean archiving = med.isActive();
+        if (archiving) {
+            AlarmScheduler.cancelAllForMedication(this, med);
+            repository.setMedicationActive(medicationId, false);
+        } else {
+            repository.setMedicationActive(medicationId, true);
+            AlarmScheduler.scheduleAllForMedication(this, med);
+        }
+        refresh();
     }
 
     private void confirmDelete() {

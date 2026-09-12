@@ -10,11 +10,17 @@ Built with Java for Android Studio.
 ## Features
 
 - **Patients & medications** — organize multiple patients, each with their own medications,
-  split into **Active** and **Archive** tabs (a fixed-duration course moves itself to
-  Archive once its last day has passed — nothing to do manually).
-- **Flexible schedules** — recurring (ongoing) or a fixed duration expressed in days,
-  weeks, or months (converted to an exact day count from the start date).
-- **Multiple doses per day** — set as many reminder times per medication as needed.
+  split into **Active** and **Archive** tabs. A fixed-duration course archives itself
+  once its last day has passed; any medication can also be archived/unarchived
+  manually from its detail screen (⋮ menu) — e.g. pausing an ongoing medication
+  without deleting its history.
+- **Flexible schedules** — recurring (ongoing), a fixed duration expressed in days,
+  weeks, or months (converted to an exact day count from the start date), or
+  **as-needed** (PRN) — no dose times, no reminders, just a "Log dose taken now"
+  button on the detail screen so stock count stays accurate for things like
+  painkillers that aren't taken on a schedule.
+- **Multiple doses per day** — set as many reminder times per medication as needed
+  (not applicable to as-needed medications, which have no reminder times at all).
 - **Reminders** — a local notification per dose time, with a "Mark Taken" action and
   swipe-to-dismiss both logged as taken (see [Notifications](#notifications) below).
 - **Early dosing** — mark a dose taken from within the app before its reminder fires.

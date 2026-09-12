@@ -55,7 +55,11 @@ public class MedicationAdapter extends RecyclerView.Adapter<MedicationAdapter.Vi
         int doseCount = med.getDoseTimes().size();
 
         String scheduleText;
-        if (med.getDurationType() == DurationType.FIXED_DAYS) {
+        if (!med.isActive()) {
+            scheduleText = res.getString(R.string.schedule_archived_summary);
+        } else if (med.getDurationType() == DurationType.AS_NEEDED) {
+            scheduleText = res.getString(R.string.schedule_as_needed_summary);
+        } else if (med.getDurationType() == DurationType.FIXED_DAYS) {
             if (ScheduleUtils.isCourseFinished(med)) {
                 scheduleText = res.getString(R.string.schedule_fixed_days_ended_summary, doseCount);
             } else if (ScheduleUtils.isCourseUpcoming(med)) {

@@ -121,6 +121,16 @@ public final class DataRepository {
         persist();
     }
 
+    /** Manually archives (false) or unarchives (true) a medication - separate from a FIXED_DAYS course finishing on its own by date. */
+    public void setMedicationActive(String medicationId, boolean active) {
+        MedicationLookup lookup = findMedication(medicationId);
+        if (lookup == null) {
+            return;
+        }
+        lookup.medication.setActive(active);
+        persist();
+    }
+
     public void deleteMedication(String patientId, String medicationId) {
         Patient patient = getPatient(patientId);
         if (patient == null) {

@@ -112,4 +112,12 @@ public final class ScheduleUtils {
         }
         return inventory.isLowStock();
     }
+
+    /**
+     * Whether a medication belongs in the Archive tab: either its FIXED_DAYS course has run
+     * its course, or the user manually archived it (Medication.active is false).
+     */
+    public static boolean isArchived(Medication med) {
+        return isCourseFinished(med) || !med.isActive();
+    }
 }

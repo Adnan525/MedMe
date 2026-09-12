@@ -50,6 +50,8 @@ public class AddEditMedicationActivity extends AppCompatActivity {
     private TextInputEditText editTotalDays;
     private Spinner spinnerDurationUnit;
     private Button buttonPickStartDate;
+    private View layoutScheduleSection;
+    private View textAsNeededNote;
     private android.widget.LinearLayout containerDoseTimes;
     private View layoutInitialQuantity;
     private TextInputEditText editInitialQuantity;
@@ -76,8 +78,7 @@ public class AddEditMedicationActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
-        radioGroupDuration.setOnCheckedChangeListener((group, checkedId) ->
-                layoutTotalDays.setVisibility(checkedId == R.id.radioFixedDays ? View.VISIBLE : View.GONE));
+        radioGroupDuration.setOnCheckedChangeListener((group, checkedId) -> updateDurationTypeVisibility(checkedId));
 
         if (medicationId != null) {
             existingMedication = findMedication(medicationId);
@@ -91,8 +92,8 @@ public class AddEditMedicationActivity extends AppCompatActivity {
         } else {
             toolbar.setTitle(R.string.add_medication);
             startDate = LocalDate.now();
-            addTimeRow(LocalTime.of(8, 0));
         }
+        updateDurationTypeVisibility(radioGroupDuration.getCheckedRadioButtonId());
         updateStartDateLabel();
 
         findViewById(R.id.buttonPickStartDate).setOnClickListener(v -> pickStartDate());
@@ -121,9 +122,31 @@ public class AddEditMedicationActivity extends AppCompatActivity {
         spinnerDurationUnit = findViewById(R.id.spinnerDurationUnit);
         buttonPickStartDate = findViewById(R.id.buttonPickStartDate);
         containerDoseTimes = findViewById(R.id.containerDoseTimes);
+        layoutScheduleSection = findViewById(R.id.layoutScheduleSection);
+        textAsNeededNote = findViewById(R.id.textAsNeededNote);
         layoutInitialQuantity = findViewById(R.id.layoutInitialQuantity);
         editInitialQuantity = findViewById(R.id.editInitialQuantity);
         editLowStockThreshold = findViewById(R.id.editLowStockThreshold);
+    }
+
+    private DurationType selectedDurationType() {
+        int checkedId = radioGroupDuration.getCheckedRadioButtonId();
+        if (checkedId == R.id.radioFixedDays) {
+            return DurationType.FIXED_DAYS;
+        } else if (checkedId == R.id.radioAsNeeded) {
+            return DurationType.AS_NEEDED;
+        }
+        return DurationType.RECURRING;
+    }
+
+    private void updateDurationTypeVisibility(int checkedId) {
+        layoutTotalDays.setVisibility(checkedId == R.id.radioFixedDays ? View.VISIBLE : View.GONE);
+        boolean asNeeded = checkedId == R.id.radioAsNeeded;
+        layoutScheduleSection.setVisibility(asNeeded ? View.GONE : View.VISIBLE);
+        textAsNeededNote.setVisibility(asNeeded ? View.VISIBLE : View.GONE);
+        if (!asNeeded && containerDoseTimes.getChildCount() == 0) {
+            addTimeRow(LocalTime.of(8, 0));
+        }
     }
 
     private void populateForEdit(Medication med) {
@@ -132,6 +155,8 @@ public class AddEditMedicationActivity extends AppCompatActivity {
             radioGroupDuration.check(R.id.radioFixedDays);
             layoutTotalDays.setVisibility(View.VISIBLE);
             editTotalDays.setText(String.valueOf(med.getTotalDays()));
+        } else if (med.getDurationType() == DurationType.AS_NEEDED) {
+            radioGroupDuration.check(R.id.radioAsNeeded);
         } else {
             radioGroupDuration.check(R.id.radioRecurring);
         }
@@ -218,9 +243,9 @@ public class AddEditMedicationActivity extends AppCompatActivity {
             return;
         }
 
-        boolean isFixedDays = radioGroupDuration.getCheckedRadioButtonId() == R.id.radioFixedDays;
+        DurationType durationType = selectedDurationType();
         int totalDays = 0;
-        if (isFixedDays) {
+        if (durationType == DurationType.FIXED_DAYS) {
             int quantity;
             try {
                 quantity = Integer.parseInt(editTotalDays.getText().toString().trim());
@@ -234,18 +259,20 @@ public class AddEditMedicationActivity extends AppCompatActivity {
             totalDays = totalDaysFor(quantity, spinnerDurationUnit.getSelectedItemPosition());
         }
 
-        List<LocalTime> times = new ArrayList<>();
-        for (int i = 0; i < containerDoseTimes.getChildCount(); i++) {
-            times.add((LocalTime) containerDoseTimes.getChildAt(i).getTag());
-        }
-        if (times.isEmpty()) {
-            Toast.makeText(this, R.string.error_time_required, Toast.LENGTH_SHORT).show();
-            return;
-        }
-        Collections.sort(times);
         List<String> doseTimeStrings = new ArrayList<>();
-        for (LocalTime t : times) {
-            doseTimeStrings.add(DateTimeUtils.formatTime(t));
+        if (durationType != DurationType.AS_NEEDED) {
+            List<LocalTime> times = new ArrayList<>();
+            for (int i = 0; i < containerDoseTimes.getChildCount(); i++) {
+                times.add((LocalTime) containerDoseTimes.getChildAt(i).getTag());
+            }
+            if (times.isEmpty()) {
+                Toast.makeText(this, R.string.error_time_required, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Collections.sort(times);
+            for (LocalTime t : times) {
+                doseTimeStrings.add(DateTimeUtils.formatTime(t));
+            }
         }
 
         int lowStockThreshold;
@@ -273,7 +300,7 @@ public class AddEditMedicationActivity extends AppCompatActivity {
 
             Medication med = new Medication();
             med.setName(name);
-            med.setDurationType(isFixedDays ? DurationType.FIXED_DAYS : DurationType.RECURRING);
+            med.setDurationType(durationType);
             med.setTotalDays(totalDays);
             med.setStartDate(DateTimeUtils.formatDate(startDate));
             med.setDoseTimes(doseTimeStrings);
@@ -287,7 +314,7 @@ public class AddEditMedicationActivity extends AppCompatActivity {
             AlarmScheduler.cancelAllForMedication(this, existingMedication);
 
             existingMedication.setName(name);
-            existingMedication.setDurationType(isFixedDays ? DurationType.FIXED_DAYS : DurationType.RECURRING);
+            existingMedication.setDurationType(durationType);
             existingMedication.setTotalDays(totalDays);
             existingMedication.setStartDate(DateTimeUtils.formatDate(startDate));
             existingMedication.setDoseTimes(doseTimeStrings);
