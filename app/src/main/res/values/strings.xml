@@ -82,6 +82,8 @@
     <string name="low_stock_threshold_course_based">Alert at %1$d or fewer, if that also won\'t finish the course</string>
     <string name="low_stock_threshold_course_based_note">Since this has a fixed course length, you\'ll only be alerted if stock is at or below the number above AND won\'t cover the doses left in the course — a course that\'s almost done won\'t nag you just because the number is small.</string>
     <string name="action_log_replenishment">Log replenishment</string>
+    <string name="action_use_one">-1</string>
+    <string name="action_use_one_description">Reduce stock on hand by one, without logging a dose</string>
     <string name="replenishment_quantity">Quantity acquired</string>
     <string name="label_todays_doses">Today\'s doses</string>
     <string name="no_doses_today">No doses scheduled for today.</string>

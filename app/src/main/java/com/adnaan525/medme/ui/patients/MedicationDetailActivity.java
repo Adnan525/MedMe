@@ -91,6 +91,7 @@ public class MedicationDetailActivity extends AppCompatActivity {
         recyclerTodayDoses.setAdapter(adapter);
 
         findViewById(R.id.buttonReplenish).setOnClickListener(v -> showReplenishDialog());
+        findViewById(R.id.buttonUseOne).setOnClickListener(v -> useOne());
         findViewById(R.id.buttonLogDoseNow).setOnClickListener(v -> logDoseNow());
     }
 
@@ -171,6 +172,14 @@ public class MedicationDetailActivity extends AppCompatActivity {
             textNoDosesToday.setVisibility(rows.isEmpty() ? View.VISIBLE : View.GONE);
             recyclerTodayDoses.setVisibility(rows.isEmpty() ? View.GONE : View.VISIBLE);
         }
+    }
+
+    private void useOne() {
+        DataRepository.DoseTakenResult result = repository.reduceStockByOne(medicationId);
+        if (result != null && result.triggersLowStockNotification) {
+            NotificationHelper.showLowStock(this, result.patient, result.medication);
+        }
+        refresh();
     }
 
     private void logDoseNow() {

@@ -272,6 +272,27 @@ public final class DataRepository {
         }
     }
 
+    /**
+     * Reduces stock on hand by one unit without touching dose logs or analytics - for a dose
+     * taken outside the app (e.g. before reinstalling wiped pending notifications), stock lost
+     * or damaged, or any other manual correction that isn't "I just took a scheduled dose".
+     */
+    public DoseTakenResult reduceStockByOne(String medicationId) {
+        MedicationLookup lookup = findMedication(medicationId);
+        if (lookup == null || lookup.medication.getInventory() == null) {
+            return null;
+        }
+        Inventory inventory = lookup.medication.getInventory();
+        inventory.setQuantityRemaining(Math.max(0, inventory.getQuantityRemaining() - 1));
+        boolean triggersLowStock = false;
+        if (ScheduleUtils.isLowStock(lookup.medication) && !inventory.isLowStockNotified()) {
+            inventory.setLowStockNotified(true);
+            triggersLowStock = true;
+        }
+        persist();
+        return new DoseTakenResult(lookup.patient, lookup.medication, triggersLowStock);
+    }
+
     public void logReplenishment(String medicationId, int quantityAdded) {
         MedicationLookup lookup = findMedication(medicationId);
         if (lookup == null || lookup.medication.getInventory() == null) {

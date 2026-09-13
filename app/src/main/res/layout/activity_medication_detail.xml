@@ -86,13 +86,29 @@
                         android:textAppearance="?attr/textAppearanceBodyMedium"
                         android:textColor="?attr/colorOnSurfaceVariant" />
 
-                    <Button
-                        android:id="@+id/buttonReplenish"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="end"
                         android:layout_marginTop="8dp"
-                        android:text="@string/action_log_replenishment" />
+                        android:gravity="center_vertical|end"
+                        android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/buttonUseOne"
+                            style="?attr/materialButtonOutlinedStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
+                            android:contentDescription="@string/action_use_one_description"
+                            android:text="@string/action_use_one" />
+
+                        <Button
+                            android:id="@+id/buttonReplenish"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/action_log_replenishment" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
