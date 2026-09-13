@@ -227,6 +227,39 @@ public final class DataRepository {
         return markTaken(medicationId, log.getId(), actualTime);
     }
 
+    /**
+     * Logs one AS_NEEDED dose taken right now. Always creates a brand-new DoseLog rather than
+     * going through ensureDoseLog's dedup-by-scheduled-time - that dedup is correct for a
+     * *scheduled* occurrence (the alarm and an early manual tap should share one log), but here
+     * every call represents a genuinely separate real-world dose. Reusing ensureDoseLog for this
+     * silently collapsed repeat presses within the same clock minute into a single log (its
+     * dedup key is minute-precision), so stock only ever dropped by 1 no matter how many times
+     * "log dose taken" was pressed in quick succession.
+     */
+    public DoseTakenResult logAsNeededDose(String medicationId, LocalDateTime actualTime) {
+        MedicationLookup lookup = findMedication(medicationId);
+        if (lookup == null) {
+            return null;
+        }
+        String iso = DateTimeUtils.formatDateTime(actualTime);
+        DoseLog log = new DoseLog(IdGenerator.newId(), iso);
+        log.setStatus(DoseStatus.TAKEN);
+        log.setActualTakenDateTime(iso);
+        lookup.medication.getDoseLogs().add(log);
+
+        Inventory inventory = lookup.medication.getInventory();
+        boolean triggersLowStock = false;
+        if (inventory != null) {
+            inventory.setQuantityRemaining(Math.max(0, inventory.getQuantityRemaining() - 1));
+            if (ScheduleUtils.isLowStock(lookup.medication) && !inventory.isLowStockNotified()) {
+                inventory.setLowStockNotified(true);
+                triggersLowStock = true;
+            }
+        }
+        persist();
+        return new DoseTakenResult(lookup.patient, lookup.medication, triggersLowStock);
+    }
+
     public static final class DoseTakenResult {
         public final Patient patient;
         public final Medication medication;

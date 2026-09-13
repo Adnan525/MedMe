@@ -174,8 +174,7 @@ public class MedicationDetailActivity extends AppCompatActivity {
     }
 
     private void logDoseNow() {
-        LocalDateTime now = LocalDateTime.now();
-        DataRepository.DoseTakenResult result = repository.markTakenForOccurrence(medicationId, now, now);
+        DataRepository.DoseTakenResult result = repository.logAsNeededDose(medicationId, LocalDateTime.now());
         if (result != null && result.triggersLowStockNotification) {
             NotificationHelper.showLowStock(this, result.patient, result.medication);
         }

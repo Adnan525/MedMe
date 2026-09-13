@@ -55,7 +55,9 @@ public class AddEditMedicationActivity extends AppCompatActivity {
     private android.widget.LinearLayout containerDoseTimes;
     private View layoutInitialQuantity;
     private TextInputEditText editInitialQuantity;
+    private View layoutLowStockThreshold;
     private TextInputEditText editLowStockThreshold;
+    private View textLowStockCourseNote;
 
     private LocalDate startDate;
 
@@ -126,7 +128,9 @@ public class AddEditMedicationActivity extends AppCompatActivity {
         textAsNeededNote = findViewById(R.id.textAsNeededNote);
         layoutInitialQuantity = findViewById(R.id.layoutInitialQuantity);
         editInitialQuantity = findViewById(R.id.editInitialQuantity);
+        layoutLowStockThreshold = findViewById(R.id.layoutLowStockThreshold);
         editLowStockThreshold = findViewById(R.id.editLowStockThreshold);
+        textLowStockCourseNote = findViewById(R.id.textLowStockCourseNote);
     }
 
     private DurationType selectedDurationType() {
@@ -140,10 +144,13 @@ public class AddEditMedicationActivity extends AppCompatActivity {
     }
 
     private void updateDurationTypeVisibility(int checkedId) {
-        layoutTotalDays.setVisibility(checkedId == R.id.radioFixedDays ? View.VISIBLE : View.GONE);
+        boolean fixedDays = checkedId == R.id.radioFixedDays;
         boolean asNeeded = checkedId == R.id.radioAsNeeded;
+        layoutTotalDays.setVisibility(fixedDays ? View.VISIBLE : View.GONE);
         layoutScheduleSection.setVisibility(asNeeded ? View.GONE : View.VISIBLE);
         textAsNeededNote.setVisibility(asNeeded ? View.VISIBLE : View.GONE);
+        layoutLowStockThreshold.setVisibility(fixedDays ? View.GONE : View.VISIBLE);
+        textLowStockCourseNote.setVisibility(fixedDays ? View.VISIBLE : View.GONE);
         if (!asNeeded && containerDoseTimes.getChildCount() == 0) {
             addTimeRow(LocalTime.of(8, 0));
         }
@@ -151,6 +158,14 @@ public class AddEditMedicationActivity extends AppCompatActivity {
 
     private void populateForEdit(Medication med) {
         editMedName.setText(med.getName());
+        startDate = DateTimeUtils.parseDate(med.getStartDate());
+        // Add the medication's real dose-time rows BEFORE flipping the radio button: checking a
+        // non-default duration type fires the listener synchronously, and updateDurationTypeVisibility
+        // adds a default 8:00 row whenever containerDoseTimes is still empty at that point. Populating
+        // the real times first means that check never finds an empty container.
+        for (String time : med.getDoseTimes()) {
+            addTimeRow(DateTimeUtils.parseTime(time));
+        }
         if (med.getDurationType() == DurationType.FIXED_DAYS) {
             radioGroupDuration.check(R.id.radioFixedDays);
             layoutTotalDays.setVisibility(View.VISIBLE);
@@ -159,10 +174,6 @@ public class AddEditMedicationActivity extends AppCompatActivity {
             radioGroupDuration.check(R.id.radioAsNeeded);
         } else {
             radioGroupDuration.check(R.id.radioRecurring);
-        }
-        startDate = DateTimeUtils.parseDate(med.getStartDate());
-        for (String time : med.getDoseTimes()) {
-            addTimeRow(DateTimeUtils.parseTime(time));
         }
         if (med.getInventory() != null) {
             editLowStockThreshold.setText(String.valueOf(med.getInventory().getLowStockThreshold()));

@@ -184,6 +184,7 @@
             </LinearLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layoutLowStockThreshold"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -197,6 +198,16 @@
                     android:text="@string/default_low_stock_threshold" />
 
             </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/textLowStockCourseNote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/low_stock_threshold_course_based_note"
+                android:textAppearance="?attr/textAppearanceBodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/buttonSave"
