@@ -79,8 +79,8 @@
     <string name="label_inventory">Inventory</string>
     <string name="quantity_remaining">%1$d remaining</string>
     <string name="low_stock_threshold_label">Alert at %1$d or fewer</string>
-    <string name="low_stock_threshold_course_based">Alerts if stock won\'t cover the rest of this course</string>
-    <string name="low_stock_threshold_course_based_note">This medication has a fixed course length, so the number above isn\'t used — you\'ll be alerted if stock on hand won\'t cover the doses left in the course.</string>
+    <string name="low_stock_threshold_course_based">Alert at %1$d or fewer, if that also won\'t finish the course</string>
+    <string name="low_stock_threshold_course_based_note">Since this has a fixed course length, you\'ll only be alerted if stock is at or below the number above AND won\'t cover the doses left in the course — a course that\'s almost done won\'t nag you just because the number is small.</string>
     <string name="action_log_replenishment">Log replenishment</string>
     <string name="replenishment_quantity">Quantity acquired</string>
     <string name="label_todays_doses">Today\'s doses</string>

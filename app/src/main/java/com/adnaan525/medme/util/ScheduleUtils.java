@@ -103,21 +103,23 @@ public final class ScheduleUtils {
     }
 
     /**
-     * Whether a medication needs a restock nudge. For a FIXED_DAYS course this compares stock
-     * against what's actually needed to finish the remaining days - e.g. a 7-day, once-daily
-     * course with 7 left needs no reminder even if that's below the configured threshold. For
-     * RECURRING medications (no end date to size the comparison against) it falls back to the
-     * user-configured threshold.
+     * Whether a medication needs a restock nudge: stock must be at or below the configured
+     * threshold, AND (for a FIXED_DAYS course only) stock must not be enough to finish the
+     * doses left in the course. Both conditions have to hold - a course that's nearly done
+     * (say, 1-2 doses left) shouldn't nag just because that's numerically below the configured
+     * threshold, since there's nothing left to run out of. For RECURRING/AS_NEEDED medications
+     * there's no course to run out of, so the second condition is trivially satisfied and this
+     * reduces to the flat threshold check alone.
      */
     public static boolean isLowStock(Medication med) {
         Inventory inventory = med.getInventory();
-        if (inventory == null) {
+        if (inventory == null || !inventory.isLowStock()) {
             return false;
         }
         if (med.getDurationType() == DurationType.FIXED_DAYS) {
             return inventory.getQuantityRemaining() < dosesNeededForRestOfCourse(med);
         }
-        return inventory.isLowStock();
+        return true;
     }
 
     /**

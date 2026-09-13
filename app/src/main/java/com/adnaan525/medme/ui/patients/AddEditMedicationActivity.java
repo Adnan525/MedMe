@@ -55,7 +55,6 @@ public class AddEditMedicationActivity extends AppCompatActivity {
     private android.widget.LinearLayout containerDoseTimes;
     private View layoutInitialQuantity;
     private TextInputEditText editInitialQuantity;
-    private View layoutLowStockThreshold;
     private TextInputEditText editLowStockThreshold;
     private View textLowStockCourseNote;
 
@@ -128,7 +127,6 @@ public class AddEditMedicationActivity extends AppCompatActivity {
         textAsNeededNote = findViewById(R.id.textAsNeededNote);
         layoutInitialQuantity = findViewById(R.id.layoutInitialQuantity);
         editInitialQuantity = findViewById(R.id.editInitialQuantity);
-        layoutLowStockThreshold = findViewById(R.id.layoutLowStockThreshold);
         editLowStockThreshold = findViewById(R.id.editLowStockThreshold);
         textLowStockCourseNote = findViewById(R.id.textLowStockCourseNote);
     }
@@ -149,7 +147,6 @@ public class AddEditMedicationActivity extends AppCompatActivity {
         layoutTotalDays.setVisibility(fixedDays ? View.VISIBLE : View.GONE);
         layoutScheduleSection.setVisibility(asNeeded ? View.GONE : View.VISIBLE);
         textAsNeededNote.setVisibility(asNeeded ? View.VISIBLE : View.GONE);
-        layoutLowStockThreshold.setVisibility(fixedDays ? View.GONE : View.VISIBLE);
         textLowStockCourseNote.setVisibility(fixedDays ? View.VISIBLE : View.GONE);
         if (!asNeeded && containerDoseTimes.getChildCount() == 0) {
             addTimeRow(LocalTime.of(8, 0));

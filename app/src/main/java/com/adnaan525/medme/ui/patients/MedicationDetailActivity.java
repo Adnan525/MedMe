@@ -137,7 +137,7 @@ public class MedicationDetailActivity extends AppCompatActivity {
         if (inventory != null) {
             textQuantityRemaining.setText(getString(R.string.quantity_remaining, inventory.getQuantityRemaining()));
             if (med.getDurationType() == DurationType.FIXED_DAYS) {
-                textLowStockThreshold.setText(R.string.low_stock_threshold_course_based);
+                textLowStockThreshold.setText(getString(R.string.low_stock_threshold_course_based, inventory.getLowStockThreshold()));
             } else {
                 textLowStockThreshold.setText(getString(R.string.low_stock_threshold_label, inventory.getLowStockThreshold()));
             }
