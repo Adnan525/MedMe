@@ -6,6 +6,10 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -82,6 +86,15 @@ public final class NotificationHelper {
                 context, notificationId + 1, deleteIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
+        Intent skipIntent = new Intent(context, DoseActionReceiver.class);
+        skipIntent.setAction(DoseActionReceiver.ACTION_SKIP);
+        skipIntent.putExtra(DoseActionReceiver.EXTRA_MEDICATION_ID, med.getId());
+        skipIntent.putExtra(DoseActionReceiver.EXTRA_DOSE_LOG_ID, log.getId());
+        skipIntent.putExtra(DoseActionReceiver.EXTRA_NOTIFICATION_ID, notificationId);
+        PendingIntent skipPendingIntent = PendingIntent.getBroadcast(
+                context, notificationId + 2, skipIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
         String scheduledTimeLabel = DateTimeUtils.parseDateTime(log.getScheduledDateTime())
                 .format(DateTimeUtils.DISPLAY_TIME_FORMAT);
 
@@ -94,9 +107,17 @@ public final class NotificationHelper {
                 .setAutoCancel(true)
                 .setContentIntent(contentPendingIntent)
                 .setDeleteIntent(deletePendingIntent)
-                .addAction(0, context.getString(R.string.action_mark_taken), markTakenPendingIntent);
+                .addAction(0, context.getString(R.string.action_mark_taken), markTakenPendingIntent)
+                .addAction(0, redActionLabel(context.getString(R.string.action_skip)), skipPendingIntent);
 
         NotificationManagerCompat.from(context).notify(notificationId, builder.build());
+    }
+
+    /** Best-effort red tint for a notification action's text - stock/AOSP notification styling honors this span, though some OEM skins may override it. */
+    private static CharSequence redActionLabel(String text) {
+        SpannableString spannable = new SpannableString(text);
+        spannable.setSpan(new ForegroundColorSpan(Color.RED), 0, text.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return spannable;
     }
 
     public static void showLowStock(Context context, Patient patient, Medication med) {

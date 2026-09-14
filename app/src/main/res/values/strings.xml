@@ -88,6 +88,7 @@
     <string name="label_todays_doses">Today\'s doses</string>
     <string name="no_doses_today">No doses scheduled for today.</string>
     <string name="action_mark_taken">Mark taken</string>
+    <string name="action_skip">Skip</string>
     <string name="dose_status_pending">Not taken yet</string>
     <string name="dose_status_taken">Taken at %1$s</string>
     <string name="dose_status_missed">Missed</string>
