@@ -23,6 +23,7 @@ import com.adnaan525.medme.model.Inventory;
 import com.adnaan525.medme.model.Medication;
 import com.adnaan525.medme.model.Patient;
 import com.adnaan525.medme.notifications.AlarmScheduler;
+import com.adnaan525.medme.notifications.NotificationHelper;
 import com.adnaan525.medme.util.DateTimeUtils;
 import com.adnaan525.medme.util.InsetsUtils;
 import com.google.android.material.textfield.TextInputEditText;
@@ -330,7 +331,10 @@ public class AddEditMedicationActivity extends AppCompatActivity {
                 existingMedication.getInventory().setLowStockThreshold(lowStockThreshold);
             }
 
-            repository.updateMedication(patientId, existingMedication);
+            DataRepository.DoseTakenResult result = repository.updateMedication(patientId, existingMedication);
+            if (result != null && result.triggersLowStockNotification) {
+                NotificationHelper.showLowStock(this, result.patient, result.medication);
+            }
             AlarmScheduler.scheduleAllForMedication(this, existingMedication);
         }
 

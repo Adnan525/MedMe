@@ -98,7 +98,6 @@ public class MedicationDetailActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        repository.refreshMissedStatuses();
         refresh();
     }
 

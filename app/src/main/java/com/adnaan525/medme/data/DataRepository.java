@@ -26,8 +26,6 @@ import java.util.List;
  * free of races between the UI and the alarm/notification receivers.
  */
 public final class DataRepository {
-    private static final int MISSED_GRACE_HOURS = 4;
-
     private static volatile DataRepository instance;
 
     private final JsonStorage storage;
@@ -106,10 +104,18 @@ public final class DataRepository {
         return medication;
     }
 
-    public void updateMedication(String patientId, Medication updated) {
+    /**
+     * Saves an edited medication and re-checks the restock alert against the new values -
+     * editing (a longer course, a higher threshold, ...) can newly cross into "low stock" the
+     * same way a dose being taken can, even though no stock actually changed. The list's dot
+     * (ScheduleUtils.isLowStock) is always evaluated live so it reflects this immediately, but
+     * without this check nothing would ever have flagged lowStockNotified or fired the
+     * notification for that crossing.
+     */
+    public DoseTakenResult updateMedication(String patientId, Medication updated) {
         Patient patient = getPatient(patientId);
         if (patient == null) {
-            return;
+            return null;
         }
         List<Medication> meds = patient.getMedications();
         for (int i = 0; i < meds.size(); i++) {
@@ -118,7 +124,20 @@ public final class DataRepository {
                 break;
             }
         }
+        boolean triggersLowStock = false;
+        Inventory inventory = updated.getInventory();
+        if (inventory != null) {
+            if (ScheduleUtils.isLowStock(updated)) {
+                if (!inventory.isLowStockNotified()) {
+                    inventory.setLowStockNotified(true);
+                    triggersLowStock = true;
+                }
+            } else {
+                inventory.setLowStockNotified(false);
+            }
+        }
         persist();
+        return new DoseTakenResult(patient, updated, triggersLowStock);
     }
 
     /** Manually archives (false) or unarchives (true) a medication - separate from a FIXED_DAYS course finishing on its own by date. */
@@ -228,6 +247,29 @@ public final class DataRepository {
     }
 
     /**
+     * Explicitly resolves a dose as not taken (the notification's "Skip" action) - no stock
+     * change, since nothing was consumed. This is now the only path a dose reaches MISSED
+     * through: there's no more time-based sweep guessing at it (see the removed
+     * refreshMissedStatuses()) - a dose stays PENDING until the user says otherwise, either by
+     * marking it taken or by skipping it.
+     */
+    public void markSkipped(String medicationId, String doseLogId) {
+        MedicationLookup lookup = findMedication(medicationId);
+        if (lookup == null) {
+            return;
+        }
+        for (DoseLog log : lookup.medication.getDoseLogs()) {
+            if (log.getId().equals(doseLogId)) {
+                if (log.getStatus() != DoseStatus.TAKEN) {
+                    log.setStatus(DoseStatus.MISSED);
+                    persist();
+                }
+                return;
+            }
+        }
+    }
+
+    /**
      * Logs one AS_NEEDED dose taken right now. Always creates a brand-new DoseLog rather than
      * going through ensureDoseLog's dedup-by-scheduled-time - that dedup is correct for a
      * *scheduled* occurrence (the alarm and an early manual tap should share one log), but here
@@ -306,28 +348,6 @@ public final class DataRepository {
         persist();
     }
 
-    /** Sweeps every medication's dose logs, flipping stale PENDING entries to MISSED. Call before any read that displays status/analytics. */
-    public void refreshMissedStatuses() {
-        LocalDateTime cutoff = LocalDateTime.now().minusHours(MISSED_GRACE_HOURS);
-        boolean changed = false;
-        for (Patient patient : appData.getPatients()) {
-            for (Medication med : patient.getMedications()) {
-                for (DoseLog log : med.getDoseLogs()) {
-                    if (log.getStatus() == DoseStatus.PENDING) {
-                        LocalDateTime scheduled = DateTimeUtils.parseDateTime(log.getScheduledDateTime());
-                        if (scheduled.isBefore(cutoff)) {
-                            log.setStatus(DoseStatus.MISSED);
-                            changed = true;
-                        }
-                    }
-                }
-            }
-        }
-        if (changed) {
-            persist();
-        }
-    }
-
     // ---- Export / Import ----
 
     public void exportTo(Uri destination) throws IOException {
@@ -358,7 +378,6 @@ public final class DataRepository {
 
     /** Taken doses only, with delay (actual - scheduled) in minutes; negative means early. */
     public List<DosePoint> getTakenDosePoints(String patientId, String medicationIdOrNull) {
-        refreshMissedStatuses();
         List<DosePoint> points = new ArrayList<>();
         for (Patient patient : appData.getPatients()) {
             if (patientId != null && !patient.getId().equals(patientId)) {

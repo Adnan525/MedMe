@@ -104,7 +104,6 @@ public class AnalysisFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        repository.refreshMissedStatuses();
         patients = repository.getPatients();
 
         boolean hasPatients = !patients.isEmpty();

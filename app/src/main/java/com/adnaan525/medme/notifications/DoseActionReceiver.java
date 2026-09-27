@@ -13,9 +13,8 @@ import java.time.LocalDateTime;
  * Handles the notification's "Mark Taken" and "Skip" action taps, and its swipe-to-dismiss
  * delete intent. Per product decision, swiping the reminder away is treated the same as
  * tapping "Mark Taken" - it's logged as taken right now, so the delay/earliness analytics
- * capture it. "Skip" is different on purpose: it doesn't touch the dose log at all, so the
- * dose stays PENDING and just flows into the existing lazy missed-after-4-hours sweep - no
- * effect on stock or analytics beyond whatever that sweep would already do.
+ * capture it. "Skip" explicitly resolves the dose as not taken (MISSED) with no stock change -
+ * this is the only way a dose reaches MISSED now that there's no time-based sweep guessing at it.
  */
 public class DoseActionReceiver extends BroadcastReceiver {
     public static final String ACTION_MARK_TAKEN = "com.adnaan525.medme.ACTION_MARK_TAKEN";
@@ -37,6 +36,7 @@ public class DoseActionReceiver extends BroadcastReceiver {
         int notificationId = intent.getIntExtra(EXTRA_NOTIFICATION_ID, -1);
 
         if (ACTION_SKIP.equals(action)) {
+            DataRepository.getInstance(context).markSkipped(medicationId, doseLogId);
             if (notificationId != -1) {
                 NotificationManagerCompat.from(context).cancel(notificationId);
             }
