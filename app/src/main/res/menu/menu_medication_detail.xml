@@ -5,6 +5,10 @@
         android:title="@string/edit_medication"
         android:showAsAction="never" />
     <item
+        android:id="@+id/action_recalibrate_stock"
+        android:title="@string/action_recalibrate_stock"
+        android:showAsAction="never" />
+    <item
         android:id="@+id/action_archive_medication"
         android:title="@string/action_archive_medication"
         android:showAsAction="never" />

@@ -40,6 +40,9 @@
     <string name="empty_archive">No archived medications yet.</string>
     <string name="action_archive_medication">Archive medication</string>
     <string name="action_unarchive_medication">Unarchive medication</string>
+    <string name="action_recalibrate_stock">Recalibrate stock count</string>
+    <string name="recalibrate_stock_hint">Current count on hand</string>
+    <string name="recalibrate_stock_message">Set the exact count on hand after a physical recount - this replaces the number, it doesn\'t add or subtract. Dose-taking history and timing are unaffected.</string>
     <string name="action_log_dose_now">Log dose taken now</string>
     <string name="as_needed_dose_logged">Logged</string>
     <plurals name="dose_count_recurring">

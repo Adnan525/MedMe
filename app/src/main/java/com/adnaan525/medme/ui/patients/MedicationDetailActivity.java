@@ -223,6 +223,41 @@ public class MedicationDetailActivity extends AppCompatActivity {
                 .show();
     }
 
+    private void showRecalibrateDialog() {
+        Medication med = currentMedication();
+        if (med == null || med.getInventory() == null) {
+            return;
+        }
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_single_input, null);
+        TextInputEditText input = dialogView.findViewById(R.id.editInput);
+        TextInputLayout inputLayout = dialogView.findViewById(R.id.inputLayout);
+        inputLayout.setHint(getString(R.string.recalibrate_stock_hint));
+        input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        input.setText(String.valueOf(med.getInventory().getQuantityRemaining()));
+        input.setSelection(input.getText().length());
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.action_recalibrate_stock)
+                .setMessage(R.string.recalibrate_stock_message)
+                .setView(dialogView)
+                .setPositiveButton(R.string.action_save, (dialog, which) -> {
+                    String text = input.getText() != null ? input.getText().toString().trim() : "";
+                    try {
+                        int newQuantity = Integer.parseInt(text);
+                        if (newQuantity >= 0) {
+                            DataRepository.DoseTakenResult result = repository.recalibrateStock(medicationId, newQuantity);
+                            if (result != null && result.triggersLowStockNotification) {
+                                NotificationHelper.showLowStock(this, result.patient, result.medication);
+                            }
+                            refresh();
+                        }
+                    } catch (NumberFormatException ignored) {
+                    }
+                })
+                .setNegativeButton(R.string.action_cancel, null)
+                .show();
+    }
+
     private void showOverflowMenu(View anchor) {
         Medication med = currentMedication();
         PopupMenu popup = new PopupMenu(this, anchor);
@@ -237,6 +272,9 @@ public class MedicationDetailActivity extends AppCompatActivity {
                 intent.putExtra(AddEditMedicationActivity.EXTRA_PATIENT_ID, patientId);
                 intent.putExtra(AddEditMedicationActivity.EXTRA_MEDICATION_ID, medicationId);
                 startActivity(intent);
+                return true;
+            } else if (item.getItemId() == R.id.action_recalibrate_stock) {
+                showRecalibrateDialog();
                 return true;
             } else if (item.getItemId() == R.id.action_archive_medication) {
                 toggleArchived();

@@ -335,6 +335,32 @@ public final class DataRepository {
         return new DoseTakenResult(lookup.patient, lookup.medication, triggersLowStock);
     }
 
+    /**
+     * Overwrites stock on hand with a fresh recount, rather than adding/removing a delta like
+     * logReplenishment/reduceStockByOne - for correcting drift between the app's running count
+     * and a physical count, in either direction. Doesn't touch dose logs or analytics at all;
+     * dose-taking time stays governed entirely by the existing taken/skip protocol.
+     */
+    public DoseTakenResult recalibrateStock(String medicationId, int newQuantity) {
+        MedicationLookup lookup = findMedication(medicationId);
+        if (lookup == null || lookup.medication.getInventory() == null) {
+            return null;
+        }
+        Inventory inventory = lookup.medication.getInventory();
+        inventory.setQuantityRemaining(Math.max(0, newQuantity));
+        boolean triggersLowStock = false;
+        if (ScheduleUtils.isLowStock(lookup.medication)) {
+            if (!inventory.isLowStockNotified()) {
+                inventory.setLowStockNotified(true);
+                triggersLowStock = true;
+            }
+        } else {
+            inventory.setLowStockNotified(false);
+        }
+        persist();
+        return new DoseTakenResult(lookup.patient, lookup.medication, triggersLowStock);
+    }
+
     public void logReplenishment(String medicationId, int quantityAdded) {
         MedicationLookup lookup = findMedication(medicationId);
         if (lookup == null || lookup.medication.getInventory() == null) {
